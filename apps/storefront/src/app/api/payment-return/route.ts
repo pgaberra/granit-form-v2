@@ -2,6 +2,7 @@ import { sdk } from "@lib/config"
 import { submitAdyenPayment } from "@lib/data/adyen"
 import { placeOrder } from "@lib/data/cart"
 import { getAuthHeaders, setCartId } from "@lib/data/cookies"
+import { isCountryCode } from "@lib/util/country-code"
 import { HttpTypes } from "@medusajs/types"
 import { unstable_rethrow } from "next/navigation"
 import { NextRequest, NextResponse } from "next/server"
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
 
   // Without a country code the middleware resolves the customer's region and
   // prefixes it; either way every redirect below stays on this origin.
-  const prefix = countryCode ? `/${countryCode}` : ""
+  const prefix = isCountryCode(countryCode) ? `/${countryCode}` : ""
   const rejected = () =>
     NextResponse.redirect(`${origin}${prefix}/cart?error=payment_failed`)
 
@@ -27,9 +28,10 @@ export async function GET(req: NextRequest) {
   // authentication page, with the result to submit to the payment session.
   const redirectResult = searchParams.get("redirectResult")
 
+  // The cart cookie is deliberately not set from cart_id here: anyone can craft
+  // this link, and pointing a shopper's cookie at someone else's cart would make
+  // them enter their details into it. submitAdyenPayment takes the id directly.
   if (cartId && redirectResult) {
-    await setCartId(cartId)
-
     try {
       // Redirects to the order confirmation once the payment is authorized.
       await submitAdyenPayment({ details: { redirectResult } }, cartId)

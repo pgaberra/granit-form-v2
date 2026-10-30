@@ -48,21 +48,20 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
 
   const showSkeleton = hasNoResultsYet || (isSearching && isPagingOnly)
 
-  if (status === "error") {
-    return (
-      <Text
-        className="py-16 text-center text-ui-fg-error"
-        data-testid="products-error"
-      >
-        Kunde inte ladda produkterna
-        {error?.message ? `: ${error.message}` : "."}
-      </Text>
-    )
-  }
-
+  // SearchPagination stays mounted in every state: unmounting a widget makes
+  // InstantSearch search again, so dropping it on error re-ran the failing
+  // search in a burst of requests.
   return (
     <>
-      {showSkeleton ? (
+      {status === "error" ? (
+        <Text
+          className="py-16 text-center text-ui-fg-error"
+          data-testid="products-error"
+        >
+          Kunde inte ladda produkterna
+          {error?.message ? `: ${error.message}` : "."}
+        </Text>
+      ) : showSkeleton ? (
         <SkeletonProductGrid numberOfProducts={hitsPerPage} />
       ) : !items.length ? (
         <Text

@@ -1,6 +1,7 @@
 "use server"
 
 import { sdk } from "@lib/config"
+import { isCountryCode } from "@lib/util/country-code"
 import medusaError from "@lib/util/medusa-error"
 import { customerErrorMessage } from "@lib/util/customer-error"
 import { HttpTypes } from "@medusajs/types"
@@ -261,7 +262,9 @@ export async function signout(countryCode: string) {
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag, { expire: 0 })
 
-  redirect(`/${countryCode}/account`)
+  // countryCode comes from the client; without a valid one the middleware
+  // adds the shopper's region to the path.
+  redirect(isCountryCode(countryCode) ? `/${countryCode}/account` : "/account")
 }
 
 export async function transferCart() {

@@ -1,6 +1,7 @@
 "use server"
 
 import { sdk } from "@lib/config"
+import { isCountryCode } from "@lib/util/country-code"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
@@ -340,13 +341,19 @@ export async function submitPromotionForm(
 
 // TODO: Pass a POJO instead of a form entity here
 export async function setAddresses(currentState: unknown, formData: FormData) {
+  // The redirect below builds its path from this value.
+  const countryCode = formData?.get("shipping_address.country_code")
+
   try {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
     }
-    const cartId = getCartId()
+    const cartId = await getCartId()
     if (!cartId) {
       throw new Error("No existing cart found when setting addresses")
+    }
+    if (!isCountryCode(countryCode)) {
+      return "Välj ett giltigt land."
     }
 
     const data: Record<string, unknown> = {
@@ -386,9 +393,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     return (e as Error).message
   }
 
-  redirect(
-    `/${formData.get("shipping_address.country_code")}/checkout?step=delivery`
-  )
+  redirect(`/${countryCode}/checkout?step=delivery`)
 }
 
 /**
@@ -436,6 +441,12 @@ export async function placeOrder(cartId?: string) {
  * @param countryCode
  */
 export async function updateRegion(countryCode: string, currentPath: string) {
+  // Both arguments come from the client and end up in the redirect path.
+  // currentPath is "" on the home page.
+  if (!isCountryCode(countryCode) || !/^(?:$|\/(?![/\\]))/.test(currentPath)) {
+    throw new Error("Invalid country code or path")
+  }
+
   const cartId = await getCartId()
   const region = await getRegion(countryCode)
 

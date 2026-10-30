@@ -30,7 +30,13 @@ const CountrySelect = ({ toggleState, regions }: CountrySelectProps) => {
   const [current, setCurrent] = useState<CountryOption | undefined>(undefined)
 
   const { countryCode } = useParams()
-  const currentPath = usePathname().split(`/${countryCode}`)[1]
+  // Strip only the leading country segment: splitting on it also cut paths that
+  // contain the code again, such as /se/products/sea-stone.
+  const pathname = usePathname()
+  const prefix = `/${countryCode}`
+  const currentPath = pathname.startsWith(prefix)
+    ? pathname.slice(prefix.length)
+    : pathname
 
   const { state, close } = toggleState
 
