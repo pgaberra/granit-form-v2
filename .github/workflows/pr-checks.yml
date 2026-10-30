@@ -49,5 +49,6 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # A placeholder so check-env-variables passes; the build calls no backend.
+          # Placeholders so check-env-variables passes; the build calls no backend.
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_ci_placeholder
+          NEXT_PUBLIC_MEDUSA_BACKEND_URL: http://localhost:9000

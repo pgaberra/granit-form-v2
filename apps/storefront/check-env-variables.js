@@ -7,6 +7,11 @@ const requiredEnvs = [
     description:
       "Learn how to create a publishable key: https://docs.medusajs.com/v2/resources/storefront-development/publishable-api-keys",
   },
+  {
+    key: "NEXT_PUBLIC_MEDUSA_BACKEND_URL",
+    description:
+      "URL of the Medusa backend, e.g. http://localhost:9000. Also used for the Content-Security-Policy.",
+  },
 ];
 
 function checkEnvVariables() {
