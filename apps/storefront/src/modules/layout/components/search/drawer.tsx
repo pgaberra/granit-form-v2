@@ -49,7 +49,7 @@ const SearchDrawer = ({ isOpen, close, children }: SearchDrawerProps) => {
                     <button
                       type="button"
                       onClick={close}
-                      aria-label="Close search"
+                      aria-label="Stäng sökningen"
                       className="text-ui-fg-muted hover:text-ui-fg-base"
                       data-testid="close-search-drawer"
                     >

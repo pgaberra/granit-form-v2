@@ -13,13 +13,15 @@ export const convertToLocale = ({
   currency_code,
   minimumFractionDigits,
   maximumFractionDigits,
-  locale = "en-US",
+  locale = "sv-SE",
 }: ConvertToLocaleParams) => {
   return currency_code && !isEmpty(currency_code)
     ? new Intl.NumberFormat(locale, {
         style: "currency",
         currency: currency_code,
-        minimumFractionDigits,
+        // Whole-krona prices read as "5 945 kr"; amounts with öre (e.g. moms) keep them.
+        minimumFractionDigits:
+          minimumFractionDigits ?? (Number.isInteger(amount) ? 0 : undefined),
         maximumFractionDigits,
       }).format(amount)
     : amount.toString()

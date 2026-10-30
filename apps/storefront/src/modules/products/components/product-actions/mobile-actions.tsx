@@ -18,6 +18,9 @@ type MobileActionsProps = {
   updateOptions: (title: string, value: string) => void
   inStock?: boolean
   handleAddToCart: () => void
+  /** Made-to-measure product without valid dimensions yet: the button scrolls to the form. */
+  needsDimensions?: boolean
+  onNeedDimensions?: () => void
   isAdding?: boolean
   show: boolean
   optionsDisabled: boolean
@@ -30,6 +33,8 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   updateOptions,
   inStock,
   handleAddToCart,
+  needsDimensions,
+  onNeedDimensions,
   isAdding,
   show,
   optionsDisabled,
@@ -112,24 +117,26 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   <span>
                     {variant
                       ? Object.values(options).join(" / ")
-                      : "Select Options"}
+                      : "Välj alternativ"}
                   </span>
                   <ChevronDown />
                 </div>
               </Button>}
               <Button
                 type="button"
-                onClick={handleAddToCart}
+                onClick={needsDimensions ? onNeedDimensions : handleAddToCart}
                 disabled={!inStock || !variant}
                 className="w-full"
                 isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
                 {!variant
-                  ? "Select variant"
+                  ? "Välj variant"
                   : !inStock
-                  ? "Out of stock"
-                  : "Add to cart"}
+                  ? "Slut i lager"
+                  : needsDimensions
+                  ? "Ange mått"
+                  : "Lägg i varukorgen"}
               </Button>
             </div>
           </div>
@@ -169,7 +176,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                       onClick={close}
                       className="bg-white w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center"
                       data-testid="close-modal-button"
-                      aria-label="Close"
+                      aria-label="Stäng"
                     >
                       <X />
                     </button>

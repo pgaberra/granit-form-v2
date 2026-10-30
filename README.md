@@ -61,3 +61,8 @@ Backend unit tests (the npm scripts use Unix env syntax; on Windows use Git Bash
 cd apps/backend
 TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules npx jest
 ```
+
+## License
+
+Source code: MIT (see [LICENSE](LICENSE)), building on Medusa's MIT-licensed starter.
+The granit&form name and logos are not covered by the license and may not be reused.

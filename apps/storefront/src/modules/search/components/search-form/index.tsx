@@ -15,25 +15,25 @@ const SearchForm = ({ countryCode, defaultValue, className }: SearchFormProps) =
     className={clx("flex gap-2", className)}
     {...{
       toolname: "search_products",
-      tooldescription: "Search the store's products by keyword",
+      tooldescription: "Sök i butikens produkter med ett sökord",
     }}
   >
     <label htmlFor="search-q" className="sr-only">
-      Search products
+      Sök produkter
     </label>
     <input
       id="search-q"
       type="search"
       name="q"
       defaultValue={defaultValue}
-      placeholder="Search products"
+      placeholder="Sök produkter"
       className="flex-1 h-10 px-4 border rounded-md border-ui-border-base bg-ui-bg-field txt-compact-medium"
     />
     <button
       type="submit"
       className="h-10 px-4 rounded-md bg-black text-white hover:bg-gray-800"
     >
-      Search
+      Sök
     </button>
   </form>
 )

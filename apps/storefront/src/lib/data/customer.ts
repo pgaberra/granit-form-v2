@@ -2,6 +2,7 @@
 
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
+import { customerErrorMessage } from "@lib/util/customer-error"
 import { HttpTypes } from "@medusajs/types"
 import { FetchError } from "@medusajs/js-sdk"
 import { revalidateTag } from "next/cache"
@@ -110,7 +111,7 @@ export async function signup(
       fetchError.statusText !== "Unauthorized" ||
       fetchError.message !== "Identity with email already exists"
     ) {
-      return { state: "error", error: String(error) }
+      return { state: "error", error: customerErrorMessage(error, "signup") }
     }
   }
 
@@ -146,7 +147,7 @@ async function completeLogin(
   try {
     result = await sdk.auth.login("customer", "emailpass", { email, password })
   } catch (error) {
-    return { state: "error", error: String(error) }
+    return { state: "error", error: customerErrorMessage(error, "login") }
   }
 
   // A `location` is returned by third-party auth providers, which this flow
@@ -154,7 +155,7 @@ async function completeLogin(
   if (typeof result === "object" && "location" in result) {
     return {
       state: "error",
-      error: "This login method isn't supported by the storefront.",
+      error: "Den här inloggningsmetoden stöds inte.",
     }
   }
 
@@ -176,7 +177,7 @@ async function completeLogin(
   if (typeof result !== "string") {
     return {
       state: "error",
-      error: "Authentication requires additional steps that aren't supported.",
+      error: "Inloggningen kräver ett steg som inte stöds.",
     }
   }
 
@@ -212,7 +213,7 @@ async function completeLogin(
         password,
       })) as string
     } catch (error) {
-      return { state: "error", error: String(error) }
+      return { state: "error", error: customerErrorMessage(error, "signup") }
     }
 
     await removePendingCustomer()
@@ -226,7 +227,7 @@ async function completeLogin(
   try {
     await transferCart()
   } catch (error) {
-    return { state: "error", error: String(error) }
+    return { state: "error", error: customerErrorMessage(error) }
   }
 
   return { state: "success" }
@@ -243,7 +244,7 @@ export async function confirmEmailVerification(
     await sdk.auth.verification.confirm({ code: token })
     return { success: true }
   } catch (error) {
-    return { success: false, error: String(error) }
+    return { success: false, error: customerErrorMessage(error) }
   }
 }
 
@@ -312,7 +313,7 @@ export const addCustomerAddress = async (
       return { success: true, error: null }
     })
     .catch((err) => {
-      return { success: false, error: err.toString() }
+      return { success: false, error: customerErrorMessage(err) }
     })
 }
 
@@ -331,7 +332,7 @@ export const deleteCustomerAddress = async (
       return { success: true, error: null }
     })
     .catch((err) => {
-      return { success: false, error: err.toString() }
+      return { success: false, error: customerErrorMessage(err) }
     })
 }
 
@@ -343,7 +344,7 @@ export const updateCustomerAddress = async (
     (currentState.addressId as string) || (formData.get("addressId") as string)
 
   if (!addressId) {
-    return { success: false, error: "Address ID is required" }
+    return { success: false, error: "Adressen saknas" }
   }
 
   const address = {
@@ -376,6 +377,6 @@ export const updateCustomerAddress = async (
       return { success: true, error: null }
     })
     .catch((err) => {
-      return { success: false, error: err.toString() }
+      return { success: false, error: customerErrorMessage(err) }
     })
 }

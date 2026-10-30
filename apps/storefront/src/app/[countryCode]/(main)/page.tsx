@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 
-import FeaturedProducts from "@modules/home/components/featured-products"
+import CategoryRail from "@modules/home/components/category-rail"
 import Hero from "@modules/home/components/hero"
-import { listCollections } from "@lib/data/collections"
+import { listCategories } from "@lib/data/categories"
 import { getRegion, listRegions } from "@lib/data/regions"
 import { toJsonLd } from "@lib/util/product-structured-data"
 import { getSiteOrigin, listCountryCodes, STORE_NAME } from "@lib/util/site"
@@ -18,15 +18,15 @@ export async function generateMetadata(props: {
   const [origin, regions] = await Promise.all([getSiteOrigin(), listRegions()])
 
   return {
-    title: "Medusa Next.js Starter Template",
+    title: "granit&form | Bänkskivor och fönsterbänkar i natursten",
     description:
-      "A performant frontend ecommerce starter template with Next.js 16 and Medusa.",
+      "Bänkskivor, fönsterbänkar och detaljer i granit, marmor och kalksten, tillverkade efter dina mått i Jämtland. Se priset direkt.",
     alternates: {
       canonical: `${origin}/${countryCode}`,
       languages: {
         ...Object.fromEntries(
           listCountryCodes(regions).map((code) => [
-            `en-${code.toUpperCase()}`,
+            `sv-${code.toUpperCase()}`,
             `${origin}/${code}`,
           ])
         ),
@@ -45,11 +45,11 @@ export default async function Home(props: {
 
   const region = await getRegion(countryCode)
 
-  const { collections } = await listCollections({
-    fields: "id, handle, title",
-  })
+  const categories = (
+    await listCategories({ fields: "id,name,handle,parent_category_id" })
+  ).filter((c) => !c.parent_category_id)
 
-  if (!collections || !region) {
+  if (!region) {
     return null
   }
 
@@ -91,7 +91,11 @@ export default async function Home(props: {
       <Hero />
       <div className="py-12">
         <ul className="flex flex-col gap-x-6">
-          <FeaturedProducts collections={collections} region={region} />
+          {categories.map((category) => (
+            <li key={category.id}>
+              <CategoryRail category={category} region={region} />
+            </li>
+          ))}
         </ul>
       </div>
     </>

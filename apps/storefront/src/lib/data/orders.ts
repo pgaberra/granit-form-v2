@@ -2,6 +2,7 @@
 
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
+import { customerErrorMessage } from "@lib/util/customer-error"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { HttpTypes } from "@medusajs/types"
 
@@ -75,7 +76,7 @@ export const createTransferRequest = async (
   const id = formData.get("order_id") as string
 
   if (!id) {
-    return { success: false, error: "Order ID is required", order: null }
+    return { success: false, error: "Ange ett ordernummer.", order: null }
   }
 
   const headers = await getAuthHeaders()
@@ -90,7 +91,7 @@ export const createTransferRequest = async (
       headers
     )
     .then(({ order }) => ({ success: true, error: null, order }))
-    .catch((err) => ({ success: false, error: err.message, order: null }))
+    .catch((err) => ({ success: false, error: customerErrorMessage(err, "order-transfer"), order: null }))
 }
 
 export const acceptTransferRequest = async (id: string, token: string) => {
@@ -99,7 +100,7 @@ export const acceptTransferRequest = async (id: string, token: string) => {
   return await sdk.store.order
     .acceptTransfer(id, { token }, {}, headers)
     .then(({ order }) => ({ success: true, error: null, order }))
-    .catch((err) => ({ success: false, error: err.message, order: null }))
+    .catch((err) => ({ success: false, error: customerErrorMessage(err), order: null }))
 }
 
 export const declineTransferRequest = async (id: string, token: string) => {
@@ -108,5 +109,5 @@ export const declineTransferRequest = async (id: string, token: string) => {
   return await sdk.store.order
     .declineTransfer(id, { token }, {}, headers)
     .then(({ order }) => ({ success: true, error: null, order }))
-    .catch((err) => ({ success: false, error: err.message, order: null }))
+    .catch((err) => ({ success: false, error: customerErrorMessage(err), order: null }))
 }

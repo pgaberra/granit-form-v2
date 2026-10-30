@@ -49,7 +49,7 @@ const addLineItem = async (
 }
 
 const errorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : "Could not add item to cart"
+  error instanceof Error ? error.message : "Det gick inte att lägga varan i varukorgen"
 
 /** No-JavaScript add-to-cart: the product page form posts here. */
 export async function POST(

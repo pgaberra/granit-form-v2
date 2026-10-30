@@ -1,14 +1,18 @@
 import { Metadata } from "next"
 
 import { getStorePolicies } from "@lib/data/store-policies"
-import { PoliciesUnavailable, PolicyPage } from "@modules/policies/templates"
+import {
+  PlaceholderNotice,
+  PoliciesUnavailable,
+  PolicyPage,
+} from "@modules/policies/templates"
 
 export const dynamic = "force-static"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Return policy",
-  description: "How to return items and get a refund.",
+  title: "Returpolicy",
+  description: "Så här returnerar du varor och får pengarna tillbaka.",
 }
 
 export default async function ReturnsPage(props: {
@@ -18,17 +22,17 @@ export default async function ReturnsPage(props: {
   const { current } = await getStorePolicies(countryCode)
 
   return (
-    <PolicyPage title="Return policy">
+    <PolicyPage title="Returpolicy">
+      <PlaceholderNotice />
       {current ? (
         <>
           <p>
-            You can return items within {current.returnWindowDays} days of
-            delivery. Items are returned by mail.
+            Lagervaror kan du returnera inom {current.returnWindowDays} dagar efter leverans. Varor som tillverkas efter dina mått omfattas inte av ångerrätten.
           </p>
           <p>
             {current.freeReturns
-              ? "Return shipping is free."
-              : "Return shipping costs are paid by the customer."}
+              ? "Returfrakten är gratis."
+              : "Du betalar returfrakten."}
           </p>
         </>
       ) : (

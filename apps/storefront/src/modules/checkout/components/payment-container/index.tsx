@@ -86,7 +86,7 @@ export const StripePaymentContainer = ({
         (stripeReady ? (
           <div className="my-4 transition-all duration-150 ease-in-out">
             <Text className="txt-medium-plus text-ui-fg-base mb-1">
-              Enter your payment details:
+              Ange dina betalningsuppgifter:
             </Text>
             <PaymentElement
               options={{ layout: "accordion" }}
@@ -102,7 +102,7 @@ export const StripePaymentContainer = ({
                 setPaymentComplete(false)
                 setError(
                   getPaymentErrorMessage(e.error) ??
-                    "Could not load the payment methods."
+                    "Det gick inte att ladda betalningssätten."
                 )
               }}
             />

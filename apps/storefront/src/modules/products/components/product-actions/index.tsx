@@ -177,7 +177,7 @@ export default function ProductActions({
           {...{
             toolname: "add_to_cart",
             tooldescription:
-              "Add the selected product variant to the shopping cart",
+              "Lägg vald produktvariant i varukorgen",
           }}
         >
           <input type="hidden" name="product_id" value={product.id} />
@@ -229,7 +229,11 @@ export default function ProductActions({
               className="text-small-regular text-ui-fg-subtle"
               data-testid="product-availability"
             >
-              {inStock ? "In stock" : "Out of stock"}
+              {stoneLimits
+                ? "Tillverkas efter dina mått"
+                : inStock
+                ? "I lager"
+                : "Slut i lager"}
             </p>
           )}
 
@@ -249,12 +253,12 @@ export default function ProductActions({
             data-testid="add-product-button"
           >
             {!selectedVariant
-              ? "Select variant"
+              ? "Välj variant"
               : !inStock || !isValidVariant
-              ? "Out of stock"
+              ? "Slut i lager"
               : stoneLimits && !stoneReady
               ? "Ange mått"
-              : "Add to cart"}
+              : "Lägg i varukorgen"}
           </Button>
           {addError && (
             <p className="txt-small text-ui-fg-error" role="alert">
@@ -269,6 +273,10 @@ export default function ProductActions({
           updateOptions={setOptionValue}
           inStock={inStock}
           handleAddToCart={handleAddToCart}
+          needsDimensions={!stoneReady}
+          onNeedDimensions={() =>
+            actionsRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
           isAdding={isAdding}
           show={!inView}
           optionsDisabled={!!disabled || isAdding}

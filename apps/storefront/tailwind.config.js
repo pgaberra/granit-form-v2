@@ -20,6 +20,20 @@ module.exports = {
         padding: "padding-top padding-right padding-bottom padding-left",
       },
       colors: {
+        // Brand: granite green sampled from the logo, warm stone neutrals.
+        granite: {
+          50: "#f3f5f4",
+          100: "#e3e8e6",
+          300: "#a9b7b2",
+          500: "#3a4b46",
+          700: "#2a3733",
+          900: "#18201d",
+        },
+        stone: {
+          50: "#f7f5f0",
+          100: "#eeeae1",
+          200: "#e2dccf",
+        },
         grey: {
           0: "#FFFFFF",
           5: "#F9FAFB",
@@ -58,7 +72,9 @@ module.exports = {
         "3xl": "2rem",
       },
       fontFamily: {
+        display: ["var(--font-jost)", "sans-serif"],
         sans: [
+          "var(--font-inter)",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",

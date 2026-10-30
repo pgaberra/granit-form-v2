@@ -33,34 +33,34 @@ export async function GET(request: Request) {
 
   const body = `# ${STORE_NAME}
 
-> Online store. Ships to ${countries.length} countries. Prices in ${currencies.join(", ")}.
+> Webbutik för måttanpassade stenskivor. Levererar till ${countries.length} länder. Priser i ${currencies.join(", ")}, inklusive moms.
 
-URLs are prefixed with a two-letter country code that sets currency and pricing, for example \`${base}\`. Available country codes: ${countries.join(", ")}.
+Webbadresser inleds med en landskod på två bokstäver som styr valuta och priser, till exempel \`${base}\`. Tillgängliga landskoder: ${countries.join(", ")}.
 
-## Shop
-- [All products](${base}/store)
+## Butik
+- [Alla produkter](${base}/store)
 ${links.join("\n")}
-- Search: ${base}/search?q={query}
+- Sök: ${base}/search?q={query}
 
-## Buying
-- Product pages contain an add-to-cart form that posts \`variant_id\` and \`quantity\` to ${base}/cart/add.
-- Preselect a variant with \`?v_id={variant_id}\` on a product URL.
-- Append \`.md\` to a product URL (or send \`Accept: text/markdown\`) for a Markdown version with variant IDs, prices and stock.
-- Checkout link: ${origin}/buy/{variant_id}:{quantity},{variant_id}:{quantity}
-- [Cart](${base}/cart)
+## Köpa
+- Produktsidor har ett formulär för att lägga i varukorgen som skickar \`variant_id\` och \`quantity\` till ${base}/cart/add.
+- Förvälj en variant med \`?v_id={variant_id}\` på en produktadress.
+- Lägg till \`.md\` på en produktadress (eller skicka \`Accept: text/markdown\`) för en Markdown-version med variant-ID, priser och lagersaldo.
+- Länk till kassan: ${origin}/buy/{variant_id}:{quantity},{variant_id}:{quantity}
+- [Varukorg](${base}/cart)
 
-## Policies
-- [Shipping information](${base}/shipping)
-- [Return policy](${base}/returns)
-- [Terms of service](${base}/terms)
-- [Privacy policy](${base}/privacy)
-- [Contact](${base}/contact)
+## Villkor
+- [Leveransinformation](${base}/shipping)
+- [Returpolicy](${base}/returns)
+- [Köpvillkor](${base}/terms)
+- [Integritetspolicy](${base}/privacy)
+- [Kontakt](${base}/contact)
 
-## For agents
-- [Sitemap](${origin}/sitemap.xml)
-- [UCP profile](${origin}/.well-known/ucp)
-- UCP MCP endpoint: ${origin}${UCP_MCP_PATH}
-- UCP REST endpoint: ${origin}${UCP_REST_BASE_PATH}
+## För agenter
+- [Webbplatskarta](${origin}/sitemap.xml)
+- [UCP-profil](${origin}/.well-known/ucp)
+- UCP MCP-endpoint: ${origin}${UCP_MCP_PATH}
+- UCP REST-endpoint: ${origin}${UCP_REST_BASE_PATH}
 `
 
   return new Response(body, {

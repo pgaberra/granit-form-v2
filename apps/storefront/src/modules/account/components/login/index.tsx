@@ -17,32 +17,32 @@ const Login = ({ setCurrentView }: Props) => {
       className="max-w-sm w-full flex flex-col items-center"
       data-testid="login-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
+      <h1 className="text-large-semi uppercase mb-6">Välkommen tillbaka</h1>
       <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Sign in to access an enhanced shopping experience.
+        Logga in för att komma åt ditt konto.
       </p>
       {message?.state === "verification_required" && (
         <div
           className="w-full mb-6 text-center text-base-regular text-ui-fg-base bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"
           data-testid="login-verification-message"
         >
-          We sent a verification link to <strong>{message.email}</strong>.
-          Please verify your email, then sign in.
+          Vi har skickat en verifieringslänk till <strong>{message.email}</strong>.
+          Verifiera din e-post och logga sedan in.
         </div>
       )}
       <form className="w-full" action={formAction}>
         <div className="flex flex-col w-full gap-y-2">
           <Input
-            label="Email"
+            label="E-post"
             name="email"
             type="email"
-            title="Enter a valid email address."
+            title="Ange en giltig e-postadress."
             autoComplete="email"
             required
             data-testid="email-input"
           />
           <Input
-            label="Password"
+            label="Lösenord"
             name="password"
             type="password"
             autoComplete="current-password"
@@ -55,7 +55,7 @@ const Login = ({ setCurrentView }: Props) => {
           data-testid="login-error-message"
         />
         <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
-          Sign in
+          Logga in
         </SubmitButton>
       </form>
       <span className="text-center text-ui-fg-base text-small-regular mt-6">
@@ -65,7 +65,7 @@ const Login = ({ setCurrentView }: Props) => {
           className="underline"
           data-testid="register-button"
         >
-          Join us
+          Skapa konto
         </button>
         .
       </span>

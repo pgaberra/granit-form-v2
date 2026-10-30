@@ -18,21 +18,19 @@ export default async function TransferPage({
         {success && (
           <>
             <Heading level="h1" className="text-xl text-zinc-900">
-              Order transfer declined!
+              Överföringen har avböjts!
             </Heading>
             <Text className="text-zinc-600">
-              Transfer of order {id} has been successfully declined.
+              Överföringen av beställning {id} har avböjts.
             </Text>
           </>
         )}
         {!success && (
           <>
             <Text className="text-zinc-600">
-              There was an error declining the transfer. Please try again.
+              Något gick fel när överföringen skulle avböjas.
             </Text>
-            {error && (
-              <Text className="text-red-500">Error message: {error}</Text>
-            )}
+            {error && <Text className="text-red-500">{error}</Text>}
           </>
         )}
       </div>

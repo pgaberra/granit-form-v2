@@ -12,9 +12,9 @@ export type AdyenPaymentResult =
   | { error: string }
 
 const DECLINED_ERROR =
-  "Your payment was declined. Please try again or use a different payment method."
+  "Betalningen nekades. Försök igen eller välj ett annat betalsätt."
 const GENERIC_ERROR =
-  "We couldn't process your payment. Please try again or use a different payment method."
+  "Vi kunde inte genomföra betalningen. Försök igen eller välj ett annat betalsätt."
 
 const getAdyenSession = async (cartId: string) => {
   // The default fields include the payment collection and its sessions. Medusa Cloud's firewall

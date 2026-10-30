@@ -1,10 +1,10 @@
 import "server-only"
 import { headers } from "next/headers"
 
-export const STORE_NAME = "Medusa Store"
+export const STORE_NAME = "granit&form"
 
 export const DEFAULT_COUNTRY_CODE = (
-  process.env.NEXT_PUBLIC_DEFAULT_REGION || "dk"
+  process.env.NEXT_PUBLIC_DEFAULT_REGION || "se"
 ).toLowerCase()
 
 const configuredUrl = () => process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "")

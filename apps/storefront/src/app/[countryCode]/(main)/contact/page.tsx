@@ -7,17 +7,16 @@ export const dynamic = "force-static"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Contact",
-  description: `How to contact ${STORE_NAME}.`,
+  title: "Kontakt",
+  description: `Så kontaktar du ${STORE_NAME}.`,
 }
 
 export default function ContactPage() {
   return (
-    <PolicyPage title="Contact">
+    <PolicyPage title="Kontakt">
       <PlaceholderNotice />
       <p>
-        Questions about an order, shipping or returns? Contact {STORE_NAME}{" "}
-        customer service and include your order number.
+        Frågor om en beställning, frakt eller retur? Kontakta kundtjänst och ange ditt ordernummer.
       </p>
     </PolicyPage>
   )

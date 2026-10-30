@@ -58,8 +58,8 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
             setInputValue(event.target.value)
             refine(event.target.value)
           }}
-          placeholder="Search products"
-          aria-label="Search products"
+          placeholder="Sök produkter"
+          aria-label="Sök produkter"
           autoFocus
           className="txt-medium w-full bg-transparent py-4 text-ui-fg-base outline-none placeholder:text-ui-fg-muted"
           data-testid="search-input"
@@ -72,14 +72,14 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
             className="px-4 py-6 text-center text-ui-fg-muted"
             data-testid="search-empty"
           >
-            Start typing to search for products.
+            Börja skriva för att söka bland produkterna.
           </Text>
         ) : status === "error" ? (
           <Text
             className="px-4 py-6 text-center text-ui-fg-error"
             data-testid="search-error"
           >
-            Couldn&apos;t search products
+            Sökningen misslyckades
             {error?.message ? `: ${error.message}` : "."}
           </Text>
         ) : !isSettled ? (
@@ -87,7 +87,7 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
             className="px-4 py-6 text-center text-ui-fg-muted"
             data-testid="search-loading"
           >
-            Searching&hellip;
+            Söker
           </Text>
         ) : hasResults ? (
           <ul className="py-2" data-testid="search-results">
@@ -100,14 +100,14 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
             className="px-4 py-6 text-center text-ui-fg-muted"
             data-testid="search-loading"
           >
-            Searching&hellip;
+            Söker
           </Text>
         ) : (
           <Text
             className="px-4 py-6 text-center text-ui-fg-subtle"
             data-testid="search-no-results"
           >
-            No products found for &quot;{query}&quot;
+            Inga produkter hittades för &quot;{query}&quot;
           </Text>
         )}
       </div>
@@ -128,7 +128,7 @@ const Search = () => {
           event.preventDefault()
           open()
         }}
-        aria-label="Search products"
+        aria-label="Sök produkter"
         className="flex items-center hover:text-ui-fg-base"
         data-testid="nav-search-button"
       >
