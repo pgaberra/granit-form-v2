@@ -33,6 +33,22 @@ jobs:
 
       - run: npm ci --no-audit --no-fund
 
+      # Dependabot ignores these pins (see dependabot.yml), so a Medusa bump that moves the
+      # dashboard's versions must re-sync them by hand; this is what catches a missed one.
+      - name: Backend pins match @medusajs/dashboard
+        run: |
+          node -e '
+            const dash = require("@medusajs/dashboard/package.json").dependencies
+            const backend = require("./apps/backend/package.json").dependencies
+            const drift = ["react-i18next", "react-router-dom", "@tanstack/react-query"]
+              .filter((name) => backend[name] !== dash[name])
+              .map((name) => `${name}: backend ${backend[name]}, dashboard ${dash[name]}`)
+            if (drift.length) {
+              console.error(drift.join("\n"))
+              process.exit(1)
+            }
+          '
+
       - name: Lint
         run: npm run lint
 

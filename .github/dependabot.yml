@@ -53,6 +53,19 @@ updates:
         update-types: [version-update:semver-major]
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
+      # The backend pins these to the exact versions @medusajs/dashboard uses, so admin
+      # extensions share the dashboard's instance. When a medusa group PR lands, re-sync
+      # them to the new dashboard's versions by hand. This also suppresses security-update
+      # PRs for them: only Dependabot alerts flag a vulnerable pin.
+      - dependency-name: react-i18next
+      - dependency-name: react-router-dom
+      - dependency-name: "@tanstack/react-query"
+      # @medusajs/admin-bundler requires vite ^7.
+      - dependency-name: vite
+        update-types: [version-update:semver-major]
+      # v4's group-radix-* variants need Tailwind 4; under Tailwind 3 they are not generated.
+      - dependency-name: tailwindcss-radix
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: npm
     directory: /tools/dev-db
