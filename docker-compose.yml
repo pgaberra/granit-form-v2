@@ -1,0 +1,20 @@
+# Production-like local infra (optional; requires Docker).
+# Without Docker, run `npm start` in tools/dev-db instead (Postgres only; Medusa
+# falls back to in-memory event bus/cache/workflows when REDIS_URL is unset).
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medusa
+    ports:
+      - "5442:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+volumes:
+  pgdata:
