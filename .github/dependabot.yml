@@ -1,0 +1,78 @@
+version: 2
+
+# Weekly, grouped, with a 7-day cooldown so a release has aged before it is proposed.
+# Security updates are not subject to the cooldown.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "22:00"
+      timezone: Europe/Stockholm
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    groups:
+      # Medusa packages are released together and must move in lockstep.
+      medusa:
+        patterns:
+          - "@medusajs/*"
+      # Payment SDKs are left out of every group so each bump gets its own PR and review.
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+        exclude-patterns:
+          - "@medusajs/*"
+          - "@adyen/*"
+          - "@stripe/*"
+      dependencies:
+        dependency-type: production
+        update-types: [minor, patch]
+        exclude-patterns:
+          - "@medusajs/*"
+          - "@adyen/*"
+          - "@stripe/*"
+    ignore:
+      # Pinned by the Medusa starter; a major here is a migration, done by hand.
+      - dependency-name: next
+        update-types: [version-update:semver-major]
+      - dependency-name: eslint-config-next
+        update-types: [version-update:semver-major]
+      - dependency-name: react
+        update-types: [version-update:semver-major]
+      - dependency-name: react-dom
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/react"
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/react-dom"
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: tailwindcss
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: npm
+    directory: /tools/dev-db
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "22:00"
+      timezone: Europe/Stockholm
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "22:00"
+      timezone: Europe/Stockholm
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]

@@ -1,0 +1,53 @@
+name: PR checks
+
+# Also on push to main: without a "branch up to date" rule (not available on a private free
+# repo), PRs that pass one by one can still break main together.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      # Match packageManager; Node 22 ships npm 10.
+      - run: npm install -g npm@11.4.1
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      # next.config.js sets typescript.ignoreBuildErrors, so the build alone never type-checks.
+      - name: Type-check
+        run: |
+          npx tsc --noEmit -p apps/backend
+          npx tsc --noEmit -p apps/storefront
+
+      - name: Backend unit tests
+        working-directory: apps/backend
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+        env:
+          # A placeholder so check-env-variables passes; the build calls no backend.
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_ci_placeholder
