@@ -59,6 +59,7 @@ jobs:
           host=${host%%/*}
           if [ -n "$host" ]; then
             echo "::add-mask::$host"
+            echo "::add-mask::${host%%:*}"
             echo "::add-mask::${BACKEND_URL%%://*}://$host"
           fi
 
