@@ -17,7 +17,9 @@ RUN npx medusa build
 WORKDIR /repo/apps/backend/.medusa/server
 # No lockfile here (Medusa copies one only from apps/backend; ours is at the repo root), so
 # transitive versions resolve at build time. See DECISIONS.md.
-RUN npm install --omit=dev --no-audit --no-fund
+# Drop devDependencies first: --omit=dev still resolves them, and without a lockfile their
+# peer ranges can conflict (vite wants a newer @types/node) and fail the install.
+RUN npm pkg delete devDependencies && npm install --omit=dev --no-audit --no-fund
 
 FROM node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da
 ENV NODE_ENV=production
