@@ -19,7 +19,10 @@ ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_DEFAULT_REGION=se
 ARG NEXT_PUBLIC_STRIPE_KEY=
-ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL \
+# Anything but "production" sends X-Robots-Tag: noindex (next.config.js).
+ARG APP_ENV=
+ENV APP_ENV=$APP_ENV \
+    NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL \
     NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY \
     NEXT_PUBLIC_DEFAULT_REGION=$NEXT_PUBLIC_DEFAULT_REGION \
     NEXT_PUBLIC_STRIPE_KEY=$NEXT_PUBLIC_STRIPE_KEY \
@@ -33,6 +36,9 @@ ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=8000 \
     HOSTNAME=0.0.0.0
+# curl for Coolify's in-container health check (GET /api/health).
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # Standalone output mirrors the monorepo layout (outputFileTracingRoot is the repo root).
 COPY --from=build --chown=node:node /repo/apps/storefront/.next/standalone ./

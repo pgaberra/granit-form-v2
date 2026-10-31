@@ -4,7 +4,8 @@ The storefront and the backend (with the admin at `/app`) run on the project's s
 access-restricted staging server under Coolify (project `granit-form`, environment `staging`).
 Their addresses are the repository secret `STAGING_BACKEND_URL` and the storefront host next
 to it; the server itself, its access setup and its file layout are documented privately, not
-in this public repository. Staging is not meant to be public or indexed.
+in this public repository. Staging is not meant to be public or indexed: every storefront build whose `APP_ENV` build arg
+is not `production` sends `X-Robots-Tag: noindex, nofollow`.
 
 ## How a deploy works
 
@@ -49,8 +50,10 @@ secret is baked into either image. The storefront image does contain the staging
 private packages and a `read:packages` pull credential in Coolify.
 
 Coolify runs the apps from these images (no builds on the server) with memory limits: backend
-768 MB, storefront 384 MB, Postgres 256 MB. Coolify's HTTP health check is off: the slim Node
-image has no curl, so Coolify relies on the container state. Redis is not used on staging:
+768 MB, storefront 384 MB, Postgres 256 MB. Both images include curl for Coolify's HTTP health
+check: `GET /health` on the backend (port 9000, built into Medusa) and `GET /api/health` on the
+storefront (port 8000, liveness only, it does not call the backend). Without a passing check a
+failed deploy keeps the old container running, so check what actually runs after a deploy. Redis is not used on staging:
 Medusa falls back to its in-memory event bus, cache and workflow engine.
 
 ## First deploy

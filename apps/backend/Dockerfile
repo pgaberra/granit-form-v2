@@ -23,6 +23,9 @@ RUN npm pkg delete devDependencies && npm install --omit=dev --no-audit --no-fun
 
 FROM node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da
 ENV NODE_ENV=production
+# curl for Coolify's in-container health check (GET /health, built into Medusa).
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /repo/apps/backend/.medusa/server ./
 # The app runs as node and may write only its uploads (the local file provider's /app/static),

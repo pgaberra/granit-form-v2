@@ -11,6 +11,10 @@ const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
 
 const isDev = process.env.NODE_ENV !== "production"
 
+// Keyed on "not production" so a new environment (staging, a preview) starts hidden.
+// Headers are computed at build time, so this comes from the image's APP_ENV build arg.
+const isProductionSite = process.env.APP_ENV === "production"
+
 // The browser calls the backend directly (search, filters), so it belongs in connect-src.
 // Headers are computed at build time, so this must be set when building. An invalid URL
 // throws here rather than leaving the backend out of the policy.
@@ -79,6 +83,8 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=31536000" },
   { key: "Content-Security-Policy", value: enforcedCsp },
   { key: "Content-Security-Policy-Report-Only", value: reportOnlyCsp },
+  // A header rather than a robots.txt Disallow: a crawler must fetch a page to drop it.
+  ...(isProductionSite ? [] : [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]),
 ]
 
 /**
