@@ -23,8 +23,7 @@ in this public repository. Staging is not meant to be public or indexed.
 ## Configuration
 
 Repository secrets (Settings → Secrets and variables → Actions → Secrets). The host values are
-not sensitive on their own, but as secrets the public Actions logs mask them, so the staging
-server cannot be found from this repository:
+not sensitive on their own, but as secrets the public Actions logs mask them:
 
 | Secret | Value |
 |---|---|
@@ -36,16 +35,18 @@ server cannot be found from this repository:
 Repository variable: `STAGING_PUBLISHABLE_KEY`, the staging backend's publishable key (public
 by design).
 
-The deploy key's public half is installed on the Coolify host with `restrict,command="..."`, so it cannot
-open a shell or forward ports.
+The deploy key's public half is installed on the Coolify host with `restrict,command="..."`,
+so it cannot open a shell or forward ports.
 
-Both NEXT_PUBLIC values are inlined into the storefront bundle and stay in the image history;
-never put a real secret in a build argument. The image attestation uses `provenance: mode=min`,
-which leaves the build arguments out. Runtime secrets (database URL, JWT and cookie
-secrets) are set only in Coolify.
+Both NEXT_PUBLIC values are inlined into the storefront bundle and end up in the built files
+and the build cache; never put a real secret in a build argument. The image attestation uses
+`provenance: mode=min`, which leaves the build arguments out. Runtime secrets (database URL,
+JWT and cookie secrets) are set only in Coolify.
 
 The GHCR packages are public so Coolify can pull them without registry credentials; nothing
-secret is baked into either image.
+secret is baked into either image. The storefront image does contain the staging backend URL
+(in its bundle and CSP), so anyone who pulls it can read that URL. Hiding staging fully needs
+private packages and a `read:packages` pull credential in Coolify.
 
 Coolify runs the apps from these images (no builds on the server) with memory limits: backend
 768 MB, storefront 384 MB, Postgres 256 MB. Coolify's HTTP health check is off: the slim Node

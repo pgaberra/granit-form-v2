@@ -49,6 +49,19 @@ jobs:
           ref: ${{ env.SHA }}
           persist-credentials: false
 
+      # Actions masks only the exact secret, so also mask the host and origin a failed build
+      # (a fetch error, the URL parse in next.config.js) could print.
+      - name: Mask the staging backend host
+        env:
+          BACKEND_URL: ${{ secrets.STAGING_BACKEND_URL }}
+        run: |
+          host=${BACKEND_URL#*://}
+          host=${host%%/*}
+          if [ -n "$host" ]; then
+            echo "::add-mask::$host"
+            echo "::add-mask::${BACKEND_URL%%://*}://$host"
+          fi
+
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
@@ -69,9 +82,9 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ env.SHA }}
           # Only the storefront reads these; NEXT_PUBLIC_* values are inlined at build time and
-          # ship in the browser bundle. Never pass a real secret here: build args stay in the
-          # image history. The backend URL comes from a secret only so this public log masks
-          # it and the staging host is not discoverable from the repository.
+          # ship in the browser bundle. Never pass a real secret here: the values end up in the
+          # built files and the build cache. The backend URL comes from a secret only so this
+          # public log masks it; the public storefront image still contains it.
           # The publishable key exists only once the staging backend has seeded its database,
           # so the very first build uses a placeholder (see ops/STAGING.md).
           build-args: |
@@ -96,7 +109,7 @@ jobs:
         run: |
           # Skipped until the deploy key and host are configured (`if:` cannot read secrets).
           if [ -z "$DEPLOY_HOST" ]; then
-            echo "STAGING_DEPLOY_HOST is not set; skipping the deploy."
+            echo "::warning::STAGING_DEPLOY_HOST is not set; deploy skipped."
             exit 0
           fi
           install -m 700 -d ~/.ssh
