@@ -8,7 +8,7 @@ something. Append-only (`merge=union` in `.gitattributes`).
 - [2026-10-30] ci: one Dependabot group for all `@medusajs/*` over per-package PRs — Medusa releases its packages together and they must move in lockstep.
 - [2026-10-30] ci: payment SDKs (`@adyen/*`, `@stripe/*`) left out of every Dependabot group — each bump touches checkout and gets its own PR and review.
 - [2026-10-30] ci: hold back majors of next, react, typescript, tailwindcss, @types/node and their companions (react-dom, eslint-config-next, @types/react*) over letting Dependabot propose them — the Medusa starter pins them and a major is a hand-done migration.
-- [2026-10-30] ci: checks run on push to main as well as on PRs, over PR-only — the repo is private on a free plan, so no ruleset can require branches to be up to date, and PRs green one by one can break main together. Revisit (drop the push trigger) once a ruleset with strict status checks exists.
+- [2026-10-31] ci: checks run on push to main as well as on PRs, over PR-only — the repo is public with a `protect-main` ruleset (PR-only, `checks` + `integration` required, branch up to date), so main is guarded, but Deploy staging is triggered by a successful push run of PR checks. Supersedes the 2026-10-30 entry, whose reason (no ruleset on a private free repo) no longer holds.
 - [2026-10-30] ci: a separate `tsc --noEmit` step over relying on `next build` — `next.config.js` sets `typescript.ignoreBuildErrors`, so the build never type-checks.
 - [2026-10-30] ci: actions pinned to commit SHAs over tags, kept current by Dependabot — a moved tag cannot change what runs.
 - [2026-10-31] storefront: security headers set in `next.config.js` over a reverse proxy — no hosting is chosen yet, and the app then carries them wherever it runs.

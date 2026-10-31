@@ -1,7 +1,7 @@
 name: PR checks
 
-# Also on push to main: without a "branch up to date" rule (not available on a private free
-# repo), PRs that pass one by one can still break main together.
+# Also on push to main: Deploy staging runs on a successful push run of this workflow, so
+# staging only ever gets commits that passed on main itself.
 on:
   pull_request:
   push:
