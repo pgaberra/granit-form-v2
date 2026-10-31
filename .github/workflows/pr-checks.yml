@@ -68,3 +68,45 @@ jobs:
           # Placeholders so check-env-variables passes; the build calls no backend.
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_ci_placeholder
           NEXT_PUBLIC_MEDUSA_BACKEND_URL: http://localhost:9000
+
+  # Boots the whole backend against a real Postgres, so routes, workflows, hooks and
+  # migrations run as they do in production.
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        # Anonymous Docker Hub pulls fail on shared runners; use Google's mirror.
+        image: mirror.gcr.io/library/postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm install -g npm@11.4.1
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Backend HTTP integration tests
+        working-directory: apps/backend
+        run: npm run test:integration:http
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres

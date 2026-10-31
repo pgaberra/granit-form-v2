@@ -26,9 +26,14 @@ export type AddStoneItemToCartInput = {
 }
 
 type PrepareStoneLineItemInput = AddStoneItemToCartInput & {
+  sales_channel_id?: string | null
   variant: {
     id: string
-    product?: { metadata?: Record<string, unknown> | null } | null
+    product?: {
+      status?: string
+      metadata?: Record<string, unknown> | null
+      sales_channels?: ({ id: string } | null)[] | null
+    } | null
     calculated_price?: {
       calculated_amount?: number | null
       is_calculated_price_tax_inclusive?: boolean
@@ -41,6 +46,18 @@ const prepareStoneLineItemStep = createStep(
   async (input: PrepareStoneLineItemInput) => {
     const { variant, length_mm, depth_mm } = input
     const metadata = variant.product?.metadata
+
+    // The variant is looked up by id alone, so check what the store API would
+    // otherwise enforce: a published product in the cart's sales channel.
+    const inCartChannel = variant.product?.sales_channels?.some(
+      (channel) => channel?.id === input.sales_channel_id
+    )
+    if (variant.product?.status !== "published" || !inCartChannel) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Variant ${variant.id} is not available in this store`
+      )
+    }
 
     if (!isStoneProduct(metadata)) {
       throw new MedusaError(
@@ -84,14 +101,20 @@ export const addStoneItemToCartWorkflow = createWorkflow(
   (input: AddStoneItemToCartInput) => {
     const { data: carts } = useQueryGraphStep({
       entity: "cart",
-      fields: ["id", "region_id", "currency_code"],
+      fields: ["id", "region_id", "currency_code", "sales_channel_id"],
       filters: { id: input.cart_id },
       options: { throwIfKeyNotFound: true },
     }).config({ name: "retrieve-cart" })
 
     const { data: variants } = useQueryGraphStep({
       entity: "variant",
-      fields: ["id", "product.metadata", "calculated_price.*"],
+      fields: [
+        "id",
+        "product.status",
+        "product.metadata",
+        "product.sales_channels.id",
+        "calculated_price.*",
+      ],
       filters: { id: input.variant_id },
       options: { throwIfKeyNotFound: true },
       context: {
@@ -102,10 +125,14 @@ export const addStoneItemToCartWorkflow = createWorkflow(
       },
     }).config({ name: "retrieve-variant" })
 
-    const prepareInput = transform({ input, variants }, ({ input, variants }) => ({
-      ...input,
-      variant: variants[0],
-    }))
+    const prepareInput = transform(
+      { input, variants, carts },
+      ({ input, variants, carts }) => ({
+        ...input,
+        sales_channel_id: carts[0].sales_channel_id,
+        variant: variants[0],
+      })
+    )
     const item = prepareStoneLineItemStep(prepareInput)
 
     const addInput = transform({ input, item }, ({ input, item }) => ({

@@ -96,6 +96,8 @@ Run from the repo root unless noted. Turbo skips missing apps automatically.
 <pm> run start              # build (via turbo dependsOn) then start
 ```
 
+`medusa start` runs with `NODE_ENV=production`, and `medusa-config.ts` then refuses template or weak values (the `.env.template` secrets, localhost/`*` CORS, `postgres:postgres`). Locally, run it with `NODE_ENV=development`; anywhere deployed, set real values.
+
 ### Lint
 
 ```bash
