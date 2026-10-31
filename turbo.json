@@ -3,6 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": ["APP_ENV"],
       "outputs": ["dist/**", ".next/**"]
     },
     "dev": {

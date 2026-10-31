@@ -1,7 +1,9 @@
 # Next.js storefront. Build context: the repository root.
 #   docker build -f apps/storefront/Dockerfile \
 #     --build-arg NEXT_PUBLIC_MEDUSA_BACKEND_URL=... \
-#     --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=... .
+#     --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=... \
+#     --build-arg APP_ENV=production .
+# Leave APP_ENV out everywhere but production: without it every page sends noindex.
 # NEXT_PUBLIC_* values are inlined at build time, so each environment needs its own image.
 # Same Node major and npm as CI (pr-checks.yml); the digest pins the base image.
 FROM node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da AS build
