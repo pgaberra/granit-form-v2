@@ -2,7 +2,7 @@
 
 The storefront and the backend (with the admin at `/app`) run on the project's shared,
 access-restricted staging server under Coolify (project `granit-form`, environment `staging`).
-Their addresses are the repository variable `STAGING_BACKEND_URL` and the storefront host next
+Their addresses are the repository secret `STAGING_BACKEND_URL` and the storefront host next
 to it; the server itself, its access setup and its file layout are documented privately, not
 in this public repository. Staging is not meant to be public or indexed.
 
@@ -22,21 +22,26 @@ in this public repository. Staging is not meant to be public or indexed.
 
 ## Configuration
 
-Repository variables (Settings → Secrets and variables → Actions → Variables):
+Repository secrets (Settings → Secrets and variables → Actions → Secrets). The host values are
+not sensitive on their own, but as secrets the public Actions logs mask them, so the staging
+server cannot be found from this repository:
 
-| Variable | Value |
+| Secret | Value |
 |---|---|
 | `STAGING_BACKEND_URL` | the staging backend's public URL |
-| `STAGING_PUBLISHABLE_KEY` | the staging backend's publishable key (public by design) |
 | `STAGING_DEPLOY_HOST` | the Coolify host's address |
 | `STAGING_DEPLOY_KNOWN_HOSTS` | that host's `known_hosts` line, so the runner pins its key |
+| `STAGING_DEPLOY_SSH_KEY` | the private half of the restricted deploy key |
 
-Repository secret: `STAGING_DEPLOY_SSH_KEY`, the private half of the restricted deploy key.
-Its public half is installed on the Coolify host with `restrict,command="..."`, so it cannot
+Repository variable: `STAGING_PUBLISHABLE_KEY`, the staging backend's publishable key (public
+by design).
+
+The deploy key's public half is installed on the Coolify host with `restrict,command="..."`, so it cannot
 open a shell or forward ports.
 
-Both NEXT_PUBLIC values are inlined into the storefront bundle and appear in the public build
-log; never put a secret in a build argument. Runtime secrets (database URL, JWT and cookie
+Both NEXT_PUBLIC values are inlined into the storefront bundle and stay in the image history;
+never put a real secret in a build argument. The image attestation uses `provenance: mode=min`,
+which leaves the build arguments out. Runtime secrets (database URL, JWT and cookie
 secrets) are set only in Coolify.
 
 The GHCR packages are public so Coolify can pull them without registry credentials; nothing
