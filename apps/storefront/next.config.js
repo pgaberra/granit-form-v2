@@ -1,3 +1,4 @@
+const path = require("path")
 const checkEnvVariables = require("./check-env-variables")
 
 checkEnvVariables()
@@ -84,6 +85,10 @@ const securityHeaders = [
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  // Self-contained server for the Docker image; tracing starts at the monorepo root so
+  // hoisted workspace dependencies are included.
+  output: "standalone",
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {

@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/.medusa
+**/.turbo
+**/.env
+**/.env.local
+**/*.tsbuildinfo
+tools/dev-db/data
+.git
+.claude

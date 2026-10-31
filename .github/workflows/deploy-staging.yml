@@ -1,0 +1,101 @@
+name: Deploy staging
+
+# Builds the backend and storefront images here (the staging server is too small to build
+# them), pushes them to GHCR tagged with the commit sha, then asks the Coolify host to deploy
+# that sha. Runs only after the PR checks pass on main, so staging gets green commits only.
+# See ops/STAGING.md.
+on:
+  workflow_run:
+    workflows: [PR checks]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  # The commit that passed the checks (workflow_run), or main's head on a manual run.
+  SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  images:
+    # A manual run deploys main only. A workflow_run deploys only a successful check run of a
+    # push to this repo's main: `branches: [main]` above matches the head branch NAME, which a
+    # fork PR from its own "main" branch would also satisfy.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' || (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: true
+      matrix:
+        app: [backend, storefront]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: true
+          # Only the sha tag: Coolify deploys by sha, and a floating tag could point the two
+          # images at different commits when one leg fails.
+          tags: ghcr.io/${{ github.repository_owner }}/granit-form-${{ matrix.app }}:${{ env.SHA }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SHA }}
+          # Only the storefront reads these; NEXT_PUBLIC_* values are inlined at build time and
+          # are public by nature (they ship in the browser bundle). Never pass a secret here:
+          # build args show in the image history and in this public log.
+          # The publishable key exists only once the staging backend has seeded its database,
+          # so the very first build uses a placeholder (see ops/STAGING.md).
+          build-args: |
+            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.STAGING_BACKEND_URL }}
+            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ vars.STAGING_PUBLISHABLE_KEY || 'pk_not_configured' }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+  deploy:
+    needs: images
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # Skipped until the deploy key and host are configured.
+    if: vars.STAGING_DEPLOY_HOST != ''
+    steps:
+      - name: Deploy the sha on the Coolify host
+        env:
+          DEPLOY_HOST: ${{ vars.STAGING_DEPLOY_HOST }}
+          KNOWN_HOSTS: ${{ vars.STAGING_DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # The key's forced command deploys exactly the sha passed here and nothing else.
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "root@$DEPLOY_HOST" "$SHA"
