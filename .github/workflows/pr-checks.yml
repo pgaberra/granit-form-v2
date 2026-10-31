@@ -70,8 +70,10 @@ jobs:
           NEXT_PUBLIC_MEDUSA_BACKEND_URL: http://localhost:9000
 
   # Builds both deploy images without pushing them, so a broken Dockerfile fails here
-  # instead of in Deploy staging after the merge. Reads the deploy workflow's layer cache.
+  # instead of in Deploy staging after the merge. Pull requests only: on main, Deploy staging
+  # builds the same images anyway.
   images:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -94,6 +96,10 @@ jobs:
           build-args: |
             NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
             NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_ci_placeholder
+          # Reads the cache Deploy staging writes, never writes it, so a pull request cannot
+          # poison what main deploys. Any pull request, forks included, can read that cache:
+          # never pass a real secret as a deploy build arg. The storefront only hits it up to
+          # its NEXT_PUBLIC_* args, which differ from the deploy's.
           cache-from: type=gha,scope=${{ matrix.app }}
 
   # Boots the whole backend against a real Postgres, so routes, workflows, hooks and
